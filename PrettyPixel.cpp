@@ -17,8 +17,8 @@ bool LMB = false;
 using namespace std;
 
 void DisplayPixels() {
-	//glutWireCube(400);
-	glutWireTeapot(300);
+	glutWireCube(400);
+	//glutWireTeapot(300);
 	
 }
 
