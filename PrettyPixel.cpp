@@ -47,6 +47,7 @@ void Reshape(int w, int h) {
 	//glFrustum(-1.0, 1.0, -1.0, 1.0, 2.0, 20.0);
 	glOrtho(-w/2, w/2, -h/2, h/2, -400, 400);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 void MouseClickMove(int x, int y) {
