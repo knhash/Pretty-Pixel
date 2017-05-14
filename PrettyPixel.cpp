@@ -61,13 +61,14 @@ void MouseClickMove(int x, int y) {
 
 void MouseMove(int x, int y) {
 	curX = x - (screenWidth / 2), curY = (screenHeight - y) - (screenHeight / 2);
-	cout << "Mouse at (" << curX << "," <<  curY << ")\n";
+	//cout << "Mouse at (" << curX << "," <<  curY << ")\n";
 	if(abs(curX - mouseX) > 0) {
-		mouseX = curX/(200);
-		mouseY = curY/(200);
+		mouseX = curX/(screenWidth/2);
+		mouseY = curY/(screenHeight/2);
 		cx = sin(mouseX)*10;
 		cz = cos(mouseX)*10;
 		glutPostRedisplay();
+		cout << "CX: " << cx << " MouseX: " << mouseX << endl;
 	}
 	if(abs(curY - mouseY) > 0) {
 		mouseX = curX/(screenWidth/2);
@@ -93,9 +94,9 @@ void MouseClick(int button, int state, int x, int y) {
 
 void Timer(int v) {
 	fraction += 0.1;
-	cx = sin(fraction)*10;
-	cz = -cos(fraction)*10;
-	cy = sin(fraction)*10;
+	cx = sin(fraction)*15;
+	cz = -cos(fraction)*15;
+	cy = sin(fraction)*15;
 	glutPostRedisplay();
 	glutTimerFunc(timerDuration, Timer, 0);
 }
@@ -109,6 +110,7 @@ int main (int argc, char **argv) {
 							(glutGet(GLUT_SCREEN_HEIGHT)-screenHeight)/2);
 	glutInitWindowSize(screenWidth, screenHeight);
 	glutCreateWindow("Pretty Pixel");
+	//glutFullScreen();
 	glClearColor(0.0, 0.0, 0.0, 0.0);		
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST); 
