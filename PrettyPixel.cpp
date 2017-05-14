@@ -4,28 +4,24 @@
 #include <GL/glut.h>
 
 //Global defaults
-int screenWidth = 800;
-int screenHeight = 800;
+int screenLength = 800;
 float mouseX = 0.0, mouseY = 0.0, curX = 0.0, curY = 0.0;
 float 
 	cx = 0.0, cy = 0.0, cz = 5.0,
 	lx = 0.0, ly = 0.0, lz = 0.0;
-int timerDuration = 50;
-float fraction = 0.0;
 bool LMB = false;
 
 using namespace std;
 
 void DisplayPixels() {
 	glutWireCube(400);
-	//glutWireTeapot(300);
 	
 }
 
 void DrawPixel(int x, int y) {
 	glPointSize(10);
 	glBegin(GL_POINTS);
-	glColor3f(((rand() % 100) / 100.0), ((rand() % 100) / 100.0), ((rand() % 100) / 100.0));
+	glColor3f(1, 1, 1);
 	glVertex3f(x, y, 0);
 	glEnd();
 }
@@ -35,7 +31,9 @@ void Pretty() {
 	glColor3f(1.0, 1.0, 1.0);	
 	glLoadIdentity();
 	gluLookAt (cx, cy, cz, lx, ly, lz, 0.0, 1.0, 0.0);
+	glRotatef(-3, 1, 0, 0);
 	DisplayPixels();
+	cout << endl;
 	//DrawPixel(0,0);
 	glFlush();
 }
@@ -51,36 +49,40 @@ void Reshape(int w, int h) {
 }
 
 void MouseClickMove(int x, int y) {
-	curX = x - (screenWidth / 2), curY = (screenHeight - y) - (screenHeight / 2);
+	curX = x - (screenLength / 2), 
+	curY = (screenLength - y) - (screenLength / 2);
 	if(LMB == true) {
-		cout << "Click at (" << curX << "," <<  curY << ")\n";
 		DrawPixel(curX, curY);
 		glFlush();
 	}	
 }
 
 void MouseMove(int x, int y) {
-	curX = x - (screenWidth / 2), curY = (screenHeight - y) - (screenHeight / 2);
-	//cout << "Mouse at (" << curX << "," <<  curY << ")\n";
+	curX = x - (screenLength / 2), 
+	curY = (screenLength - y) - (screenLength / 2);
+	cout 
+		<< " cx: " << cx*180/M_PI
+		<< " cy: " << cy*180/M_PI
+		<< " cz: " << cz*180/M_PI;
 	if(abs(curX - mouseX) > 0) {
-		mouseX = curX/(screenWidth/2);
-		mouseY = curY/(screenHeight/2);
-		cx = sin(mouseX)*10;
-		cz = cos(mouseX)*10;
+		mouseX = curX/(screenLength/2);
+		mouseY = curY/(screenLength/2);
+		cx = sin(mouseX);
+		cz = cos(mouseX);
 		glutPostRedisplay();
-		cout << "CX: " << cx << " MouseX: " << mouseX << endl;
 	}
 	if(abs(curY - mouseY) > 0) {
-		mouseX = curX/(screenWidth/2);
-		mouseY = curY/(screenHeight/2);
-		cy = sin(mouseY)*10;
-		cz = cos(mouseY)*10;
+		mouseX = curX/(screenLength/2);
+		mouseY = curY/(screenLength/2);
+		cy = sin(mouseY);
+		cz = cos(mouseY);
 		glutPostRedisplay();
 	}
 }
 
 void MouseClick(int button, int state, int x, int y) {
-	curX = x - (screenWidth / 2), curY = (screenHeight - y) - (screenHeight / 2);
+	curX = x - (screenLength / 2), 
+	curY = (screenLength - y) - (screenLength / 2);
 	switch(button) {
 		case GLUT_LEFT_BUTTON :
 			if(state == GLUT_DOWN) {
@@ -89,35 +91,27 @@ void MouseClick(int button, int state, int x, int y) {
 			else if(state == GLUT_UP) {
 				LMB = false;
 			}
+		case GLUT_RIGHT_BUTTON :
+			if(state == GLUT_DOWN) {
+				exit(0);
+			}
 	}
 }
 
-void Timer(int v) {
-	fraction += 0.1;
-	cx = sin(fraction)*15;
-	cz = -cos(fraction)*15;
-	cy = sin(fraction)*15;
-	glutPostRedisplay();
-	glutTimerFunc(timerDuration, Timer, 0);
-}
-
 int main (int argc, char **argv) {
-	cout << "Hello World! Pretty Pixel\n";
+	cout << "Hello World! Pretty Pixel\n\nNerd Stats:\n";
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB|GLUT_DEPTH);
-	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH)-screenWidth)/2, 
-							(glutGet(GLUT_SCREEN_HEIGHT)-screenHeight)/2);
-	glutInitWindowSize(screenWidth, screenHeight);
+	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH)-screenLength)/2, 
+						   (glutGet(GLUT_SCREEN_HEIGHT)-screenLength)/2);
+	glutInitWindowSize(screenLength, screenLength);
 	glutCreateWindow("Pretty Pixel");
-	//glutFullScreen();
-	glClearColor(0.0, 0.0, 0.0, 0.0);		
-	glShadeModel(GL_SMOOTH);
+	glClearColor(0.0, 0.0, 0.0, 0.0);	
 	glEnable(GL_DEPTH_TEST); 
 
 	glutDisplayFunc(Pretty);		
 	glutReshapeFunc(Reshape);
-	//glutTimerFunc(timerDuration, Timer, 0);
 	glutMotionFunc(MouseClickMove);
 	glutMouseFunc(MouseClick);
 	glutPassiveMotionFunc(MouseMove);
