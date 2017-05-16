@@ -9,15 +9,15 @@
 using namespace std;
 
 //Global defaults
-int screenLength = 800, level = 0, size = 0, solBuffer = 5, score = 0;
+int screenWidth, screenHeight, level = 0, size = 0, solBuffer = 5, score = 0;
 float rotateX = 0, rotateY = 0, goalX = 0, goalY = 0;
 bool pass = false;
 
 int picture[100][3];
 
-void RandomizeZ(int ray[][3], int size) {
+void RandomizeZ(int ray[][3], int siz) {
 	srand (time(NULL));
-	for(int i = 0; i < size; ++i) {
+	for(int i = 0; i < siz; ++i) {
 		ray[i][2] = (rand()%400) - 200;
 	}
 }
@@ -25,8 +25,10 @@ void RandomizeZ(int ray[][3], int size) {
 void Leveler() {
 	//Set random solution point
 	srand (time(NULL));
-	goalX = (rand()%198) - 99;
-	goalY = (rand()%198) - 99;
+	goalX = (rand()%screenWidth) - (screenWidth/2);
+	goalY = (rand()%screenHeight) - (screenHeight/2);
+	goalX /= (screenWidth/200);
+	goalY /= (screenHeight/200);
 
 	//Clear picture
 	memset(picture, 0, sizeof(int) * size * 3);
@@ -108,20 +110,24 @@ void Pretty() {
 	glFlush();
 }
 
+void Splash() {
+
+}
+
 void Reshape(int w, int h) {
-	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-w/2, w/2, -h/2, h/2, -w/2, w/2);
+	glOrtho(-w/2, w/2, -h/2, h/2, -h/2, h/2);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
 
 void MouseMove(int x, int y) {
-	x = x - (screenLength / 2), 
-	y = (screenLength - y) - (screenLength / 2);
-	rotateX = -y/4;
-	rotateY = x/4;
+	x = x - (screenWidth / 2), 
+	y = (screenHeight - y) - (screenHeight / 2);
+	rotateX = -y/(screenHeight/200);
+	rotateY = x/(screenWidth/200);
 	score++;
 	glutPostRedisplay();
 }
@@ -148,9 +154,10 @@ int main (int argc, char **argv) {
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB|GLUT_DEPTH);
-	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH)-screenLength)/2, 
-						   (glutGet(GLUT_SCREEN_HEIGHT)-screenLength)/2);
-	glutInitWindowSize(screenLength, screenLength);
+	glutInitWindowPosition(0, 0);
+	screenWidth = glutGet(GLUT_SCREEN_WIDTH);
+	screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+	glutInitWindowSize(screenWidth, screenHeight);
 	glutCreateWindow("Pretty Pixel");
 	glClearColor(0.0, 0.0, 0.0, 0.0);	
 	glEnable(GL_DEPTH_TEST); 
@@ -161,11 +168,11 @@ int main (int argc, char **argv) {
 	Leveler();
 
 	/*******************************************************************/
-
-	glutDisplayFunc(Pretty);		
+		
 	glutReshapeFunc(Reshape);
 	glutMouseFunc(MouseClick);
 	glutPassiveMotionFunc(MouseMove);
+	glutDisplayFunc(Pretty);	//Game display
 	glutMainLoop();
 
 	return 0;
