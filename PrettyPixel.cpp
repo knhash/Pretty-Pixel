@@ -1,3 +1,4 @@
+//FFFFF
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
@@ -9,11 +10,13 @@
 using namespace std;
 
 //Global defaults
-int screenWidth, screenHeight, level = 0, size = 0, solBuffer = 5, score = 0;
-float rotateX = 0, rotateY = 0, goalX = 0, goalY = 0;
-bool pass = false;
-
-int picture[100][3];
+int 
+	screenWidth, screenHeight, level = 0, size = 0, 
+	solBuffer = 5, score = 0, ruleFlag, picture[100][3];
+float 
+	rotateX = 0, rotateY = 0, goalX = 0, goalY = 0;
+bool 
+	pass = false;
 
 void RandomizeZ(int ray[][3], int siz) {
 	srand (time(NULL));
@@ -110,8 +113,79 @@ void Pretty() {
 	glFlush();
 }
 
-void Splash() {
+void DrawText(const char *text, int x, int y, int sparkle)
+{
+	glPushMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(x, y, 0);
+	if(sparkle)
+		glScalef(.3, .3, .0);
+	else
+	{
+		glScalef(.15, .15, .7);
+		glLineWidth(2);
+	}
+	for (int i = 0; text[i] != '\0'; i++)
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, (int)text[i]);
+	glutPostRedisplay();
+	glPopMatrix();
+}
 
+void Splash() {
+	glPushMatrix();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+	glColor3f(0.5, 1.0, 0.0);	
+	DrawText("Pretty Pixel", 320, 350, 1);
+
+	glColor3f(1.0, 0.0, 0.0);
+	DrawText("g/G: Start game", 20, 200, 0);
+	DrawText("h/H: Help", 20, 300, 0);
+	DrawText("q/Q: Quit", 20, 400, 0);
+	DrawText(".", 700, 700, 0);
+	glColor3f(0.5, 1.0, 0.0);
+	
+	DrawText("Shreyas N", 50, 100, 1);
+	DrawText("Computer Graphics Project", 175, 530, 1);
+	DrawText("1MV14CS130", 50, 50, 1);
+	DrawText("Shashank S", 545, 100, 1);
+	DrawText("1MV14CS131", 545, 50, 1);
+	glLineWidth(10);
+	glPointSize(10);
+	glColor3f(0.0, 0.0, 1.0);
+	glBegin(GL_POINTS);
+	glVertex3f(-screenWidth/2, 400, 0);
+	glVertex3f(-screenWidth/2, -screenHeight/2 + 10, 0);
+	glVertex3f(screenWidth/2, -screenHeight/2 + 10, 0);
+	glVertex3f(screenWidth/2, screenHeight/2 - 10, 0);
+	glEnd();
+	glFlush();
+	glPopMatrix();
+}
+
+void Help() {
+	glPushMatrix();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glColor3f(1.0, 1.0, 1.0);
+	glLoadIdentity();
+	glColor3f(0.0, 0.0, 1.0);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(10, 10, 0);
+	glVertex3f(10, 580, 0);
+	glVertex3f(790, 580, 0);
+	glVertex3f(790, 10, 0);
+	glEnd();
+	glColor3f(0.0, 1.0, 0.0);
+	DrawText("The rules are simple",200, 500, 1);
+	glColor3f(0.0, 1.0, 1.0);
+	DrawText("1)Blah blah blah blah ",300,400,0);
+	DrawText("2)Blah blah blah blah ",300,300, 0);
+	DrawText("3)Blah blah blah blah ",300,200, 0);
+	DrawText("4)Blah blah blah blah ",300,100, 0);
+	glFlush();
+	glPopMatrix();
 }
 
 void Reshape(int w, int h) {
@@ -149,6 +223,30 @@ void MouseClick(int button, int state, int x, int y) {
 	}
 }
 
+void Keys(unsigned char key, int x, int y)
+{
+
+	switch (key)
+	{
+		case 'q':
+		case 'Q':
+			glutDisplayFunc(Splash);
+			break;
+
+		case 'h':
+		case 'H':
+			ruleFlag = 1;
+			glutDisplayFunc(Help);
+			break;
+
+		case 'g':
+		case 'G':
+			ruleFlag = 2;
+			glutDisplayFunc(Pretty);
+			break;
+	}
+}
+
 int main (int argc, char **argv) {
 	cout << "Hello World!  Pretty Pixel\n";
 
@@ -157,23 +255,26 @@ int main (int argc, char **argv) {
 	glutInitWindowPosition(0, 0);
 	screenWidth = glutGet(GLUT_SCREEN_WIDTH);
 	screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+	cout << "Screen Dimensions: " << screenWidth << "," << screenHeight;
 	glutInitWindowSize(screenWidth, screenHeight);
 	glutCreateWindow("Pretty Pixel");
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);	
 	glEnable(GL_DEPTH_TEST); 
 
-	/*******************************************************************/
+	/***********************/
 
 	cout << "LMB advance, RMB to exit" ;
 	Leveler();
 
-	/*******************************************************************/
+	/***********************/
 		
 	glutReshapeFunc(Reshape);
 	glutMouseFunc(MouseClick);
 	glutPassiveMotionFunc(MouseMove);
-	glutDisplayFunc(Pretty);	//Game display
+	glutKeyboardFunc(Keys);
+	glutDisplayFunc(Splash);
 	glutMainLoop();
 
 	return 0;
-}
+}????
