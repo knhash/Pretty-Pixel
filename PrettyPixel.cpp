@@ -175,8 +175,8 @@ void GameOver() {
 	DrawText("GameOver", -(screenLength/3.4), (screenHeight/4), 1);
 
 	glColor3f(0.3, 0.69, 0.31);
-	DrawText("m/M: MAIN MENU", -(screenLength/5.5), (screenHeight/16), 2);
-	DrawText("q/Q: EXIT", -(screenLength/5.5), 0, 2);
+	DrawText("(m/M): MAIN MENU", -(screenLength/5.5), (screenHeight/16), 2);
+	DrawText("(q/Q): EXIT", -(screenLength/5.5), 0, 2);
 
 	glColor3f(1.0, 0.54, 0.5);
 	DrawText("Your High Score:  ", 
