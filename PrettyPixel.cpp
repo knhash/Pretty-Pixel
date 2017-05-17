@@ -23,6 +23,7 @@ char
 
 //Global declarations
 void Splash();
+void GameOver();
 
 void RandomizeZ(int ray[][3], int siz) {
 	srand (time(NULL));
@@ -50,28 +51,34 @@ void Leveler() {
 		case 1:
 			siz = sizeof(square) / sizeof (square[0]);
 			memcpy(picture, square, sizeof(int) * siz * 3);
+			score += 1000;
 			break;
 		case 2:
 			siz = sizeof(doubleSquare) / sizeof (doubleSquare[0]);
 			memcpy(picture, doubleSquare, sizeof(int) * siz * 3);
+			score += 1000;
 			break;
 		case 3:
 			siz = sizeof(android) / sizeof (android[0]);
 			memcpy(picture, android, sizeof(int) * siz * 3);
+			score += 1000;
 			break;
 		case 4:
 			siz = sizeof(ess) / sizeof (ess[0]);
 			memcpy(picture, ess, sizeof(int) * siz * 3);
+			score += 1000;
 			break;
 		case 5:
 			siz = sizeof(spiral) / sizeof (spiral[0]);
 			memcpy(picture, spiral, sizeof(int) * siz * 3);
+			score += 1000;
 			break;
 		default:
 			cout << " Score: " << score << "\nGame Over\n";
-			glutDisplayFunc(Splash);
-			glutPostRedisplay();
+			glutDisplayFunc(GameOver);
 			level = 0;
+			score  = 0;
+			glutPostRedisplay();
 			break;
 	}
 	if(level > 1)
@@ -81,7 +88,6 @@ void Leveler() {
 	//Randomize z coordinates
 	RandomizeZ(picture, siz);
 }
-
 
 void DrawText(const char *text, int x, int y, int sparkle)
 {
@@ -108,16 +114,17 @@ void DrawText(const char *text, int x, int y, int sparkle)
 	glPopMatrix();
 }
 
-
 void DrawPixel() {
-	glColor3f(1, 1, 1);
+	//glColor3f((rand()%100/100.0),(rand()%100/100.0),(rand()%100/100.0));
 	//Draw points
-	glPointSize(5);
+	glColor3f(.33, .44, .98);
+	glPointSize(7);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_INT, 0, picture);
 	glDrawArrays(GL_POINTS, 0, siz);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	//Draw lines
+	glColor3f(1,1,1);
 	glLineWidth(1);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_INT, 0, picture);
@@ -159,6 +166,37 @@ void Pretty() {
 	glutSwapBuffers();
 }
 
+void GameOver() {
+	glPushMatrix();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+	glColor3f(1.0, 0.54, 0.5);
+	DrawText("GameOver", -(screenLength/3.4), (screenHeight/4), 1);
+
+	glColor3f(0.3, 0.69, 0.31);
+	DrawText("m/M: MAIN MENU", -(screenLength/5.5), (screenHeight/16), 2);
+	DrawText("q/Q: EXIT", -(screenLength/5.5), 0, 2);
+
+	glColor3f(1.0, 0.54, 0.5);
+	DrawText("Your High Score:  ", 
+			-(screenLength/2.3), -(screenHeight/5), 3);
+	DrawText(scoreText, 
+			(screenLength/5), -(screenHeight/5), 3);
+
+	glColor3f(1.0, 0.44, 0.26);
+	glBegin(GL_LINES);
+	glVertex3f(-(screenWidth/2), (screenHeight/2 - 40), 0);
+	glVertex3f((screenWidth/2), (screenHeight/2 - 40), 0);
+	glVertex3f((screenWidth/2), -(screenHeight/2 - 40), 0);
+	glVertex3f(-(screenWidth/2), -(screenHeight/2 - 40), 0);
+	glEnd();
+
+	glFlush();
+	glPopMatrix();
+	glutSwapBuffers();
+}
+
 void Splash() {
 	glPushMatrix();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -193,7 +231,6 @@ void Splash() {
 	glFlush();
 	glPopMatrix();
 	glutSwapBuffers();
-
 }
 
 void Help() {
@@ -242,7 +279,8 @@ void MouseMove(int x, int y) {
 	y = (screenLength - y) - (screenLength / 2);
 	rotateX = -y/(screenLength/200);
 	rotateY = x/(screenLength/200);
-	score++;
+	if(--score < 0) 
+		glutDisplayFunc(GameOver);
 	glutPostRedisplay();
 }
 
@@ -295,10 +333,12 @@ void Keys(unsigned char key, int x, int y)
 			exit(0);	
 	}
 }
+
 void idle()
 {
 	glutPostRedisplay();
 }
+
 int main (int argc, char **argv) {
 	cout << "Hello World!  Pretty Pixel\n";
 
