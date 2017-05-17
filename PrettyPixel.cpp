@@ -12,7 +12,7 @@ using namespace std;
 //Global defaults
 int 
 	screenLength = 800 ,screenWidth, screenHeight, level = 0, siz = 0, 
-	solBuffer = 5, score = 0, ruleFlag, picture[300][3];
+	solBuffer = 5, score = 0, picture[300][3];
 float
 	rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
 bool 
@@ -49,36 +49,32 @@ void Leveler() {
 	//Load level picture
 	switch(level) {
 		case 1:
-			siz = sizeof(square) / sizeof (square[0]);
-			memcpy(picture, square, sizeof(int) * siz * 3);
+			siz = sizeof(one) / sizeof (one[0]);
+			memcpy(picture, one, sizeof(int) * siz * 3);
 			score += 1000;
 			break;
 		case 2:
-			siz = sizeof(doubleSquare) / sizeof (doubleSquare[0]);
-			memcpy(picture, doubleSquare, sizeof(int) * siz * 3);
+			siz = sizeof(two) / sizeof (two[0]);
+			memcpy(picture, two, sizeof(int) * siz * 3);
 			score += 1000;
 			break;
 		case 3:
-			siz = sizeof(android) / sizeof (android[0]);
-			memcpy(picture, android, sizeof(int) * siz * 3);
+			siz = sizeof(three) / sizeof (three[0]);
+			memcpy(picture, three, sizeof(int) * siz * 3);
 			score += 1000;
 			break;
 		case 4:
-			siz = sizeof(ess) / sizeof (ess[0]);
-			memcpy(picture, ess, sizeof(int) * siz * 3);
-			score += 1000;
-			break;
-		case 5:
-			siz = sizeof(spiral) / sizeof (spiral[0]);
-			memcpy(picture, spiral, sizeof(int) * siz * 3);
+			siz = sizeof(four) / sizeof (four[0]);
+			memcpy(picture, four, sizeof(int) * siz * 3);
 			score += 1000;
 			break;
 		default:
 			cout << " Score: " << score << "\nGame Over\n";
+			siz = sizeof(one) / sizeof (one[0]);
+			memcpy(picture, one, sizeof(int) * siz * 3);
+			level = 1;
+			score = 1000;
 			glutDisplayFunc(GameOver);
-			level = 0;
-			score  = 0;
-			glutPostRedisplay();
 			break;
 	}
 	if(level > 1)
@@ -116,6 +112,7 @@ void DrawText(const char *text, int x, int y, int sparkle)
 
 void DrawPixel() {
 	//glColor3f((rand()%100/100.0),(rand()%100/100.0),(rand()%100/100.0));
+	glPushMatrix();
 	//Draw points
 	glColor3f(.33, .44, .98);
 	glPointSize(7);
@@ -130,10 +127,10 @@ void DrawPixel() {
 	glVertexPointer(3, GL_INT, 0, picture);
 	glDrawArrays(GL_LINES, 0, siz);
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glPopMatrix();
 }
 
 void Pretty() {
-	glPushMatrix();
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	sprintf(levelText,"%d",level);
 	DrawText("Level: ", -70, (screenHeight/2.2), 2);
@@ -162,7 +159,6 @@ void Pretty() {
 	//glutWireCube(400);
 
 	glFlush();
-	glPopMatrix();
 	glutSwapBuffers();
 }
 
@@ -313,13 +309,11 @@ void Keys(unsigned char key, int x, int y)
 
 		case 'h':
 		case 'H':
-			ruleFlag = 1;
 			glutDisplayFunc(Help);
 			break;
 
 		case 'g':
 		case 'G':
-			ruleFlag = 2;
 			glutDisplayFunc(Pretty);
 			break;
 
@@ -350,7 +344,7 @@ int main (int argc, char **argv) {
 	glutCreateWindow("Pretty Pixel");
 	glutFullScreen();
 	glClearColor(0.0, 0.0, 0.0, 0.0);	
-	glEnable(GL_DEPTH_TEST); 
+	glEnable(GL_DEPTH_TEST); 	
 
 	/***********************/
 
