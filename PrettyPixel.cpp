@@ -1,3 +1,21 @@
+//Skip to content
+//This repository
+//Search
+/*Pull requests
+Issues
+Gist
+@shadyshrew
+Sign out
+Unwatch 2
+Star 0
+Fork 0 Knhash / Pretty - Pixel Private
+Code  Issues 0  Pull requests 0  Projects 0  Wiki  Pulse  Graphs
+Branch : master Find file Copy pathPretty - Pixel / PrettyPixel.cpp
+49d3658  an hour ago */
+//	@Knhash Knhash feat : Integrate Draw.cpp
+//2 contributors @Knhash @shadyshrew
+//	RawBlameHistory
+//	476 lines(417 sloc)  10.5 KB
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
@@ -6,50 +24,82 @@
 #include <GL/glut.h>
 #include <GL/freeglut.h>
 #include <time.h>
+
 #include "Pictures.h"
-#include "CustomPictures.h"
 
 using namespace std;
 
 //Global defaults
 int
 screenLength = 800, screenWidth, screenHeight, level = 0, siz = 0,
-solBuffer = 5, score = 0, picture[300][3], cpicture[300][3], ind = 0, i,savior = 0;
+solBuffer = 5, score = 0, picture[300][3], customPicture[300][3],
+ind = 0;
 float
 rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
 bool
-pass = false;
+pass = false, drawSC = false, helpSC = false, mainSC = true;
 char
-scoreText[7], levelText[3], picName[25] = "haha";
+scoreText[7], levelText[3], picName[20] = "Trial";
 
 
 //Global declarations
 void Splash();
 void GameOver();
-void CustomGame();
-void WriteCoord();
 
-void WriteCoord() {
-	if (ind == 0)
-		return;
-	cout << "Writing " << picName;
-	ofstream fout;
-	fout.open("CustomPictures.h", ios::app);
-	fout << "\n\nint " << picName << "[][3] = {";
-	for (i = 0; i < ind - 1; ++i) {
-		cout << ".";
-		fout << "\n{" << cpicture[i][0] << ", "
-			<< cpicture[i][1] << ", 0},";
-	}
-	fout << "\n{" << cpicture[i][0] << ", " << cpicture[i][1] << ", 0}};";
-	fout.close();
-	cout << ". Done\n";
-}
 void RandomizeZ(int ray[][3], int siz) {
 	srand(time(NULL));
 	for (int i = 0; i < siz; ++i) {
 		ray[i][2] = (rand() % 600) - 300;
 	}
+}
+
+void WriteCoord() {
+	int i;
+	if (ind == 0)
+		return;
+	cout << "\nWriting " << picName;
+	ofstream fout;
+	fout.open("CustomPictures.h", ios::app);
+	fout << "\n\nint " << picName << "[][3] = {";
+	for (i = 0; i < ind - 1; ++i) {
+		cout << ".";
+		fout << "\n{" << customPicture[i][0] << ", "
+			<< customPicture[i][1] << ", 0},";
+	}
+	fout << "\n{" << customPicture[i][0] << ", "
+		<< customPicture[i][1] << ", 0}};";
+	fout.close();
+	cout << ". Done\n";
+}
+
+void DrawCustomPixel(int x, int y) {
+	glPushMatrix();
+	cout << endl << ind;
+	glColor3f(1, 1, 1);
+	glPointSize(5);
+	glBegin(GL_POINTS);
+	glVertex3f(x, y, 0);
+	glEnd();
+	glutSwapBuffers();
+	glPopMatrix();
+
+	//Store points
+	customPicture[ind][0] = x,
+		customPicture[ind][1] = y,
+		customPicture[ind][2] = 0;
+	ind++;
+}
+
+void CustomDraw() {
+	glPushMatrix();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	glColor3f(0.3, 0.69, 0.31);
+	glLineWidth(1);
+	glutWireCube(700);
+	glFlush();
+	glPopMatrix();
+	glutSwapBuffers();
 }
 
 void Leveler() {
@@ -105,8 +155,7 @@ void Leveler() {
 	RandomizeZ(picture, siz);
 }
 
-void DrawText(const char *text, int x, int y, int sparkle)
-{
+void DrawText(const char *text, int x, int y, int sparkle) {
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -149,49 +198,20 @@ void DrawPixel() {
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glPopMatrix();
 }
-void DrawPPixel(int x, int y) {
-	glColor3f(0, 0, 1);
-	glPointSize(5);
-	glBegin(GL_POINTS);
-	glVertex3f(x, y, 0);
-	glEnd();
-
-	//Store points
-	cpicture[ind][0] = x, cpicture[ind][1] = y, cpicture[ind][2] = 0;
-	cout << ind << endl;
-	ind++;
-}
-
-void CustomGame()
-{
-	glPushMatrix();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-	glPointSize(1);
-	glColor3f(1.0, 0.54, 0.5);
-	DrawText("Draw Here", -(screenLength / 3.4), (screenHeight / 3), 1);
-	glColor3f(1.0, 0.44, 0.26);
-	glBegin(GL_LINES);
-	glVertex3f(-(screenWidth / 2), (screenHeight / 2 - 40), 0);
-	glVertex3f((screenWidth / 2), (screenHeight / 2 - 40), 0);
-	glVertex3f((screenWidth / 2), -(screenHeight / 2 - 40), 0);
-	glVertex3f(-(screenWidth / 2), -(screenHeight / 2 - 40), 0);
-	glEnd();
-
-	glFlush();
-	glPopMatrix();
-	glutSwapBuffers();
-}
 
 void Pretty() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glPointSize(2);
+	glPointSize(1);
 	sprintf(levelText, "%d", level);
-	DrawText("Level: ", -70, (screenHeight / 2.2), 2);
-	DrawText(levelText, 30, (screenHeight / 2.2), 2);
+	DrawText("Level: ",
+		-70, (screenHeight / 2.2), 2);
+	DrawText(levelText,
+		30, (screenHeight / 2.2), 2);
 	sprintf(scoreText, "%d", score);
-	DrawText("Score: ", -70, (screenHeight / 2.4), 2);
-	DrawText(scoreText, 30, (screenHeight / 2.4), 2);
+	DrawText("Score: ",
+		-70, (screenHeight / 2.4), 2);
+	DrawText(scoreText,
+		30, (screenHeight / 2.4), 2);
 
 	glColor3f(1.0, 1.0, 1.0);
 	glLoadIdentity();
@@ -222,11 +242,14 @@ void GameOver() {
 	glLoadIdentity();
 	glPointSize(1);
 	glColor3f(1.0, 0.54, 0.5);
-	DrawText("GameOver", -(screenLength / 3.4), (screenHeight / 4), 1);
+	DrawText("GameOver",
+		-(screenLength / 3.4), (screenHeight / 4), 1);
 
 	glColor3f(0.3, 0.69, 0.31);
-	DrawText("(m/M): MAIN MENU", -(screenLength / 5.5), (screenHeight / 16), 2);
-	DrawText("(q/Q): EXIT", -(screenLength / 5.5), 0, 2);
+	DrawText("(m/M): MAIN MENU",
+		-(screenLength / 5.5), (screenHeight / 16), 2);
+	DrawText("(q/Q): EXIT",
+		-(screenLength / 5.5), 0, 2);
 
 	glColor3f(1.0, 0.54, 0.5);
 	DrawText("Your High Score:  ",
@@ -241,7 +264,6 @@ void GameOver() {
 	glVertex3f((screenWidth / 2), -(screenHeight / 2 - 40), 0);
 	glVertex3f(-(screenWidth / 2), -(screenHeight / 2 - 40), 0);
 	glEnd();
-
 	glFlush();
 	glPopMatrix();
 	glutSwapBuffers();
@@ -253,22 +275,30 @@ void Splash() {
 	glLoadIdentity();
 
 	glColor3f(1.0, 0.54, 0.5);
-	DrawText("PRETTY PIXEL", -(screenLength / 2.7), (screenHeight / 4), 1);
+	DrawText("PRETTY PIXEL",
+		-(screenLength / 2.7), (screenHeight / 4), 1);
 
 	glColor3f(0.3, 0.69, 0.31);
-	DrawText("(g/G): START GAME", -(screenLength / 5), (screenHeight / 16), 2);
-	DrawText("(h/H): HELP", -(screenLength / 5), 0, 2);
-	DrawText("(c/C): START CUSTOM GAME", -(screenLength / 5), -(screenHeight / 16), 2);
+	DrawText("(g/G): START GAME",
+		-(screenLength / 5), (screenHeight / 16), 2);
+	DrawText("(h/H): HELP",
+		-(screenLength / 5), 0, 2);
+	DrawText("(c/C): CUSTOM GAME",
+		-(screenLength / 5), -(screenHeight / 16), 2);
 
 	glColor3f(1.0, 0.54, 0.5);
 	DrawText("Computer Graphics Project",
 		-(screenLength / 2.05), -(screenHeight / 5), 3);
 
 	glColor3f(0.3, 0.69, 0.31);
-	DrawText("Shreyas N", -(screenWidth / 2.5), -(screenHeight / 3.5), 2);
-	DrawText("1MV14CS130", -(screenWidth / 2.5), -(screenHeight / 3), 2);
-	DrawText("Shashank S", (screenWidth / 2.5) - 157, -(screenHeight / 3.5), 2);
-	DrawText("1MV14CS131", (screenWidth / 2.5) - 157, -(screenHeight / 3), 2);
+	DrawText("Shreyas N",
+		-(screenWidth / 2.5), -(screenHeight / 3.5), 2);
+	DrawText("1MV14CS130",
+		-(screenWidth / 2.5), -(screenHeight / 3), 2);
+	DrawText("Shashank S",
+		(screenWidth / 2.5) - 157, -(screenHeight / 3.5), 2);
+	DrawText("1MV14CS131",
+		(screenWidth / 2.5) - 157, -(screenHeight / 3), 2);
 	glLineWidth(10);
 
 	glColor3f(1.0, 0.44, 0.26);
@@ -278,7 +308,7 @@ void Splash() {
 	glVertex3f((screenWidth / 2), -(screenHeight / 2 - 40), 0);
 	glVertex3f(-(screenWidth / 2), -(screenHeight / 2 - 40), 0);
 	glEnd();
-
+	score = 1000;
 	glFlush();
 	glPopMatrix();
 	glutSwapBuffers();
@@ -303,14 +333,12 @@ void Help() {
 	glColor3f(0.0, 1.0, 1.0);
 	DrawText("Move mouse to rotate the playing field",
 		-(screenLength / 2.1), (screenHeight / 16), 2);
-	DrawText("Custom game to draw and play",
-		-(screenLength / 2.1), -(screenHeight / 8), 2);
 	DrawText("Left Mouse Button to advance to next level",
 		-(screenLength / 2.1), 0, 2);
 	DrawText("Right Mouse Button to exit the game",
 		-(screenLength / 2.1), -(screenHeight / 16), 2);
 	DrawText("(m/M) to go to menu, (g/G) to start game",
-		-(screenLength / 2.1), -(screenHeight / 5.5), 2);
+		-(screenLength / 2.1), -(screenHeight / 8), 2);
 	glFlush();
 	glPopMatrix();
 	glutSwapBuffers();
@@ -322,7 +350,7 @@ void Reshape(int w, int h) {
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-w / 2, w / 2, -h / 2, h / 2, -h / 2, h / 2);
+	glOrtho(-w / 2, w / 2, -h / 2, h / 2, -w / 2, w / 2);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -330,73 +358,89 @@ void Reshape(int w, int h) {
 void MouseMove(int x, int y) {
 	x = x - (screenLength / 2),
 		y = (screenLength - y) - (screenLength / 2);
-	if (savior == 0)
-	{
+	if (!drawSC) {
 		rotateX = -y / (screenLength / 200);
 		rotateY = x / (screenLength / 200);
-		if (--score < 0)
-			glutDisplayFunc(GameOver);
-		glutPostRedisplay();
-	}
+			if (--score < 0)
+			{
+				score = 1000;
+				
+				glutDisplayFunc(GameOver);
+			}
+			glutPostRedisplay();
+		}
+}
+
+void MouseClickMove(int x, int y) {
+	x = x - (screenLength / 2),
+		y = (screenLength - y) - (screenLength / 2);
 }
 
 void MouseClick(int button, int state, int x, int y) {
-	if (savior == 0)
-	{
-		switch (button) {
-		case GLUT_RIGHT_BUTTON:
-			if (state == GLUT_DOWN) {
+	x = x - (screenLength / 2),
+		y = (screenLength - y) - (screenLength / 2);
+
+	switch (button) {
+	case GLUT_RIGHT_BUTTON:
+		if (state == GLUT_DOWN) {
+			if (!drawSC) {
 				cout << "\nGame Over\n";
 				exit(0);
 			}
-			break;
-		case GLUT_LEFT_BUTTON:
-			if (state == GLUT_DOWN && pass == true) {
-				pass = false;
-				Leveler();
-			}
-			break;
-		}
-	}
-	else
-	{
-		x = x - (screenLength / 2),
-			y = (screenLength - y) - (screenLength / 2);
-		switch (button) {
-		case GLUT_RIGHT_BUTTON:
-			if (state == GLUT_DOWN) {
+			else {
 				WriteCoord();
-				savior = 0;
+				drawSC = false;
+				glPointSize(1);
+				glutSetWindowTitle("Pretty Pixel");
+				glutFullScreen();
+				glPointSize(1);
 				glutDisplayFunc(Splash);
-				}
-			break;
-		case GLUT_LEFT_BUTTON:
-			if (state == GLUT_DOWN) {
-				DrawPPixel(x, y);
-				//glFlush();
 			}
-			break;
 		}
+		break;
+	case GLUT_LEFT_BUTTON:
+		if (state == GLUT_DOWN && pass == true && !drawSC &&
+			!mainSC && !helpSC) {
+			//Level up
+			pass = false;
+			Leveler();
+		}
+		else if (state == GLUT_DOWN && drawSC &&
+			x > -350 && x < 350 && y > -350 && y < 350) {
+			//User drawing board
+			DrawCustomPixel(x, y);
+			glFlush();
+		}
+		break;
 	}
 }
 
-void Keys(unsigned char key, int x, int y)
-{
+void Keys(unsigned char key, int x, int y) {
 
 	switch (key)
 	{
 	case 'm':
 	case 'M':
+		mainSC = true;
+		helpSC = false;
+		drawSC = false;
 		glutDisplayFunc(Splash);
 		break;
 
 	case 'h':
 	case 'H':
+		mainSC = false;
+		helpSC = true;
+		drawSC = false;
 		glutDisplayFunc(Help);
 		break;
 
 	case 'g':
 	case 'G':
+		mainSC = false;
+		helpSC = false;
+		drawSC = false;
+		glutSetWindowTitle("Pretty Draw");
 		glutDisplayFunc(Pretty);
 		break;
 
@@ -405,21 +449,26 @@ void Keys(unsigned char key, int x, int y)
 		glutFullScreenToggle();
 		break;
 
+	case 'c':
+	case 'C':
+		mainSC = false;
+		helpSC = false;
+		drawSC = true;
+		glutReshapeWindow(800, 800);
+		glutSetWindowTitle("Pretty Draw");
+		glutDisplayFunc(CustomDraw);
+		break;
+
 	case 'q':
 	case 'Q':
 		exit(0);
-
-	case 'c':
-	case 'C':
-		savior = 1;
-		memset(cpicture, 0, sizeof(int) * 100 * 3);
-		glutDisplayFunc(CustomGame);
 	}
 }
 
-void idle()
-{
-	glutPostRedisplay();
+void idle() {
+	//Idle boy
+	glutSwapBuffers();
+	//glutPostRedisplay();	
 }
 
 int main(int argc, char **argv) {
@@ -432,9 +481,7 @@ int main(int argc, char **argv) {
 	glutInitWindowSize(screenLength, screenLength);
 	glutCreateWindow("Pretty Pixel");
 	glutFullScreen();
-	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
-
 	/***********************/
 
 	Leveler();
@@ -443,11 +490,14 @@ int main(int argc, char **argv) {
 
 	glutReshapeFunc(Reshape);
 	glutMouseFunc(MouseClick);
+	glutMotionFunc(MouseClickMove);
 	glutPassiveMotionFunc(MouseMove);
 	glutKeyboardFunc(Keys);
 	glutDisplayFunc(Splash);
-	glutIdleFunc(idle);
+	//glutIdleFunc(idle);
 	glutMainLoop();
 
 	return 0;
 }
+//Contact GitHub API Training Shop Blog About
+//© 2017 GitHub, Inc.Terms Privacy Security Status Help
