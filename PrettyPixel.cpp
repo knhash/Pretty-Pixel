@@ -1,21 +1,3 @@
-//Skip to content
-//This repository
-//Search
-/*Pull requests
-Issues
-Gist
-@shadyshrew
-Sign out
-Unwatch 2
-Star 0
-Fork 0 Knhash / Pretty - Pixel Private
-Code  Issues 0  Pull requests 0  Projects 0  Wiki  Pulse  Graphs
-Branch : master Find file Copy pathPretty - Pixel / PrettyPixel.cpp
-49d3658  an hour ago */
-//	@Knhash Knhash feat : Integrate Draw.cpp
-//2 contributors @Knhash @shadyshrew
-//	RawBlameHistory
-//	476 lines(417 sloc)  10.5 KB
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
