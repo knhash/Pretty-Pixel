@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <cstring>
+#include <fstream>
 #include <GL/glut.h>
 #include <GL/freeglut.h>
 #include <time.h>
+
 #include "Pictures.h"
 
 using namespace std;
@@ -12,13 +14,14 @@ using namespace std;
 //Global defaults
 int 
 	screenLength = 800 ,screenWidth, screenHeight, level = 0, siz = 0, 
-	solBuffer = 5, score = 0, picture[300][3];
+	solBuffer = 5, score = 0, picture[300][3], customPicture[300][3], 
+	ind = 0;
 float
 	rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
 bool 
-	pass = false;
+	pass = false, drawSC = false, helpSC = false, mainSC = true;
 char 
-	scoreText[7],levelText[3];
+	scoreText[7], levelText[3], picName[20] = "Trial";
 
 
 //Global declarations
@@ -30,6 +33,55 @@ void RandomizeZ(int ray[][3], int siz) {
 	for(int i = 0; i < siz; ++i) {
 		ray[i][2] = (rand()%600) - 300;
 	}
+}
+
+void WriteCoord() {
+	int i;
+	if(ind == 0)
+		return;
+	cout << "\nWriting " << picName;
+	ofstream fout;
+	fout.open("CustomPictures.h", ios::app);
+	fout << "\n\nint " << picName << "[][3] = {" ;
+	for(i = 0; i < ind - 1; ++i) {
+		cout << ".";
+		fout << "\n{" << customPicture[i][0] << ", " 
+			<< customPicture[i][1] << ", 0}," ; 
+	}
+	fout << "\n{" << customPicture[i][0] << ", " 
+	<< customPicture[i][1] << ", 0}};" ; 
+	fout.close();
+	cout << ". Done\n";
+}
+
+void DrawCustomPixel(int x, int y) {
+	glPushMatrix();
+	cout << endl << ind ;
+	glColor3f(1, 1, 1);
+	glPointSize(5);
+	glBegin(GL_POINTS);
+	glVertex3f(x, y, 0);
+	glEnd();
+	glutSwapBuffers();
+	glPopMatrix();
+
+	//Store points
+	customPicture[ind][0] = x, 
+	customPicture[ind][1] = y, 
+	customPicture[ind][2] = 0;
+	ind++;
+}
+
+void CustomDraw() {
+	glPushMatrix();
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	glColor3f(0.3, 0.69, 0.31);
+	glLineWidth(1);
+	glutWireCube(700);
+	glFlush();
+	glPopMatrix();
+	glutSwapBuffers();
 }
 
 void Leveler() {
@@ -85,8 +137,7 @@ void Leveler() {
 	RandomizeZ(picture, siz);
 }
 
-void DrawText(const char *text, int x, int y, int sparkle)
-{
+void DrawText(const char *text, int x, int y, int sparkle) {
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -133,11 +184,15 @@ void DrawPixel() {
 void Pretty() {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	sprintf(levelText,"%d",level);
-	DrawText("Level: ", -70, (screenHeight/2.2), 2);
-	DrawText(levelText, 30, (screenHeight/2.2), 2);
+	DrawText("Level: ", 
+		-70, (screenHeight/2.2), 2);
+	DrawText(levelText, 
+		30, (screenHeight/2.2), 2);
 	sprintf(scoreText,"%d",score);
-	DrawText("Score: ", -70, (screenHeight/2.4), 2);
-	DrawText(scoreText, 30, (screenHeight/2.4), 2);
+	DrawText("Score: ", 
+		-70, (screenHeight/2.4), 2);
+	DrawText(scoreText, 
+		30, (screenHeight/2.4), 2);
 
 	glColor3f(1.0, 1.0, 1.0);	
 	glLoadIdentity();
@@ -168,11 +223,14 @@ void GameOver() {
 	glLoadIdentity();
 
 	glColor3f(1.0, 0.54, 0.5);
-	DrawText("GameOver", -(screenLength/3.4), (screenHeight/4), 1);
+	DrawText("GameOver", 
+		-(screenLength/3.4), (screenHeight/4), 1);
 
 	glColor3f(0.3, 0.69, 0.31);
-	DrawText("(m/M): MAIN MENU", -(screenLength/5.5), (screenHeight/16), 2);
-	DrawText("(q/Q): EXIT", -(screenLength/5.5), 0, 2);
+	DrawText("(m/M): MAIN MENU", 
+		-(screenLength/5.5), (screenHeight/16), 2);
+	DrawText("(q/Q): EXIT", 
+		-(screenLength/5.5), 0, 2);
 
 	glColor3f(1.0, 0.54, 0.5);
 	DrawText("Your High Score:  ", 
@@ -199,21 +257,30 @@ void Splash() {
 	glLoadIdentity();
 
 	glColor3f(1.0, 0.54, 0.5);
-	DrawText("PRETTY PIXEL", -(screenLength/2.7), (screenHeight/4), 1);
+	DrawText("PRETTY PIXEL", 
+		-(screenLength/2.7), (screenHeight/4), 1);
 
 	glColor3f(0.3, 0.69, 0.31);
-	DrawText("(g/G): START GAME", -(screenLength/5), (screenHeight/16), 2);
-	DrawText("(h/H): HELP", -(screenLength/5), 0, 2);
+	DrawText("(g/G): START GAME", 
+		-(screenLength/5), (screenHeight/16), 2);
+	DrawText("(h/H): HELP", 
+		-(screenLength/5), 0, 2);
+	DrawText("(c/C): CUSTOM GAME", 
+		-(screenLength/5), -(screenHeight/16), 2);
 
 	glColor3f(1.0, 0.54, 0.5);
 	DrawText("Computer Graphics Project", 
 			-(screenLength/2.05), -(screenHeight/5), 3);
 	
 	glColor3f(0.3, 0.69, 0.31);
-	DrawText("Shreyas N", -(screenWidth/2.5), -(screenHeight/3.5), 2);
-	DrawText("1MV14CS130", -(screenWidth/2.5), -(screenHeight/3), 2);
-	DrawText("Shashank S", (screenWidth/2.5)-157, -(screenHeight/3.5), 2);
-	DrawText("1MV14CS131", (screenWidth/2.5)-157, -(screenHeight/3), 2);
+	DrawText("Shreyas N", 
+		-(screenWidth/2.5), -(screenHeight/3.5), 2);
+	DrawText("1MV14CS130", 
+		-(screenWidth/2.5), -(screenHeight/3), 2);
+	DrawText("Shashank S", 
+		(screenWidth/2.5)-157, -(screenHeight/3.5), 2);
+	DrawText("1MV14CS131", 
+		(screenWidth/2.5)-157, -(screenHeight/3), 2);
 	glLineWidth(10);
 
 	glColor3f(1.0, 0.44, 0.26);
@@ -265,7 +332,7 @@ void Reshape(int w, int h) {
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-w/2, w/2, -h/2, h/2, -h/2, h/2);
+	glOrtho(-w/2, w/2, -h/2, h/2, -w/2, w/2);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -273,47 +340,82 @@ void Reshape(int w, int h) {
 void MouseMove(int x, int y) {
 	x = x - (screenLength / 2), 
 	y = (screenLength - y) - (screenLength / 2);
-	rotateX = -y/(screenLength/200);
-	rotateY = x/(screenLength/200);
-	if(--score < 0) 
-		glutDisplayFunc(GameOver);
-	glutPostRedisplay();
+	if(!drawSC) {		
+		rotateX = -y/(screenLength/200);
+		rotateY = x/(screenLength/200);
+		if(--score < 0) 
+			glutDisplayFunc(GameOver);
+		glutPostRedisplay();
+	}
+}
+
+void MouseClickMove(int x, int y) {
+	x = x - (screenLength / 2), 
+	y = (screenLength - y) - (screenLength / 2);
 }
 
 void MouseClick(int button, int state, int x, int y) {
+	x = x - (screenLength / 2), 
+	y = (screenLength - y) - (screenLength / 2);
+	
 	switch(button) {
 		case GLUT_RIGHT_BUTTON :
 			if(state == GLUT_DOWN) {
-				cout << "\nGame Over\n";
-				exit(0);
+				if(!drawSC) {
+					cout << "\nGame Over\n";
+					exit(0);
+				}
+				else {
+					WriteCoord();
+					drawSC = false;
+					glutSetWindowTitle("Pretty Pixel");
+					glutDisplayFunc(Splash);
+				}
 			}
 			break;
 		case GLUT_LEFT_BUTTON :
-			if(state == GLUT_DOWN && pass == true) {
+			if(state == GLUT_DOWN && pass == true && !drawSC && 
+				!mainSC && !helpSC) {
+				//Level up
 				pass = false;
-				Leveler();
+				Leveler();				
+			}
+			else if(state == GLUT_DOWN && drawSC &&
+					x > -350 && x < 350 && y > -350 && y < 350) {
+				//User drawing board
+				DrawCustomPixel(x, y);
+				glFlush();
 			}
 			break;
 	}
 }
 
-void Keys(unsigned char key, int x, int y)
-{
+void Keys(unsigned char key, int x, int y) {
 
 	switch (key)
 	{
 		case 'm':
 		case 'M':
+			mainSC = true;
+			helpSC = false;
+			drawSC = false;
 			glutDisplayFunc(Splash);
 			break;
 
 		case 'h':
 		case 'H':
+			mainSC = false;
+			helpSC = true;
+			drawSC = false;
 			glutDisplayFunc(Help);
 			break;
 
 		case 'g':
 		case 'G':
+			mainSC = false;
+			helpSC = false;
+			drawSC = false;
+			glutSetWindowTitle("Pretty Draw");
 			glutDisplayFunc(Pretty);
 			break;
 
@@ -322,15 +424,26 @@ void Keys(unsigned char key, int x, int y)
 			glutFullScreenToggle();
 			break;
 
+		case 'c':
+		case 'C':
+			mainSC = false;
+			helpSC = false;
+			drawSC = true;
+			glutReshapeWindow(800, 800);
+			glutSetWindowTitle("Pretty Draw");
+			glutDisplayFunc(CustomDraw);
+			break;
+
 		case 'q':
 		case 'Q':
 			exit(0);	
 	}
 }
 
-void idle()
-{
-	glutPostRedisplay();
+void idle() {
+	//Idle boy
+	glutSwapBuffers();
+	//glutPostRedisplay();	
 }
 
 int main (int argc, char **argv) {
@@ -343,9 +456,7 @@ int main (int argc, char **argv) {
 	glutInitWindowSize(screenLength, screenLength);
 	glutCreateWindow("Pretty Pixel");
 	glutFullScreen();
-	glClearColor(0.0, 0.0, 0.0, 0.0);	
 	glEnable(GL_DEPTH_TEST); 	
-
 	/***********************/
 
 	Leveler();
@@ -354,10 +465,11 @@ int main (int argc, char **argv) {
 		
 	glutReshapeFunc(Reshape);
 	glutMouseFunc(MouseClick);
+	glutMotionFunc(MouseClickMove);
 	glutPassiveMotionFunc(MouseMove);
 	glutKeyboardFunc(Keys);
 	glutDisplayFunc(Splash);
-	glutIdleFunc(idle);
+	//glutIdleFunc(idle);
 	glutMainLoop();
 
 	return 0;
