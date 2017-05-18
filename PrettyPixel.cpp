@@ -14,14 +14,14 @@ using namespace std;
 //Global defaults
 int
 screenLength = 800, screenWidth, screenHeight, level = 0, siz = 0,
-solBuffer = 5, score = 0, picture[300][3], customPicture[300][3],
+solBuffer = 5, score = 0, picture[300][3], custPicture[300][3],
 ind = 0;
 float
 rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
 bool
-pass = false, drawSC = false, helpSC = false, mainSC = true;
+pass = false, drawSC = false, custGame = false, firstG = true;
 char
-scoreText[7], levelText[3], picName[20] = "Trial";
+scoreText[7], levelText[3];
 
 
 //Global declarations
@@ -33,25 +33,6 @@ void RandomizeZ(int ray[][3], int siz) {
 	for (int i = 0; i < siz; ++i) {
 		ray[i][2] = (rand() % 600) - 300;
 	}
-}
-
-void WriteCoord() {
-	int i;
-	if (ind == 0)
-		return;
-	cout << "\nWriting " << picName;
-	ofstream fout;
-	fout.open("CustomPictures.h", ios::app);
-	fout << "\n\nint " << picName << "[][3] = {";
-	for (i = 0; i < ind - 1; ++i) {
-		cout << ".";
-		fout << "\n{" << customPicture[i][0] << ", "
-			<< customPicture[i][1] << ", 0},";
-	}
-	fout << "\n{" << customPicture[i][0] << ", "
-		<< customPicture[i][1] << ", 0}};";
-	fout.close();
-	cout << ". Done\n";
 }
 
 void DrawCustomPixel(int x, int y) {
@@ -66,9 +47,9 @@ void DrawCustomPixel(int x, int y) {
 	glPopMatrix();
 
 	//Store points
-	customPicture[ind][0] = x,
-		customPicture[ind][1] = y,
-		customPicture[ind][2] = 0;
+	custPicture[ind][0] = x,
+	custPicture[ind][1] = y,
+	custPicture[ind][2] = 0;
 	ind++;
 }
 
@@ -98,37 +79,47 @@ void Leveler() {
 	//Level up
 	level++;
 
-	//Load level picture
-	switch (level) {
-	case 1:
-		siz = sizeof(one) / sizeof(one[0]);
-		memcpy(picture, one, sizeof(int) * siz * 3);
-		score += 1000;
-		break;
-	case 2:
-		siz = sizeof(two) / sizeof(two[0]);
-		memcpy(picture, two, sizeof(int) * siz * 3);
-		score += 1000;
-		break;
-	case 3:
-		siz = sizeof(three) / sizeof(three[0]);
-		memcpy(picture, three, sizeof(int) * siz * 3);
-		score += 1000;
-		break;
-	case 4:
-		siz = sizeof(four) / sizeof(four[0]);
-		memcpy(picture, four, sizeof(int) * siz * 3);
-		score += 1000;
-		break;
-	default:
-		cout << " Score: " << score << "\nGame Over\n";
-		siz = sizeof(one) / sizeof(one[0]);
-		memcpy(picture, one, sizeof(int) * siz * 3);
-		level = 1;
+	if(custGame) {
+		siz = ind;//sizeof(custPicture) / sizeof(custPicture[0]);
+		memcpy(picture, custPicture, sizeof(int) * siz * 3);
 		score = 1000;
-		glutDisplayFunc(GameOver);
-		break;
+		level = 999;
+		custGame = false;
 	}
+
+	else {
+		//Load level picture
+		switch (level) {
+		case 1:
+			siz = sizeof(one) / sizeof(one[0]);
+			memcpy(picture, one, sizeof(int) * siz * 3);
+			break;
+		case 2:
+			siz = sizeof(two) / sizeof(two[0]);
+			memcpy(picture, two, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+		case 3:
+			siz = sizeof(three) / sizeof(three[0]);
+			memcpy(picture, three, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+		case 4:
+			siz = sizeof(four) / sizeof(four[0]);
+			memcpy(picture, four, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+		default:
+			cout << " Score: " << score << "\nGame Over\n";
+			siz = sizeof(one) / sizeof(one[0]);
+			memcpy(picture, one, sizeof(int) * siz * 3);
+			level = 1;
+			score = 1000;
+			glutDisplayFunc(GameOver);
+			break;
+		}
+	}
+	
 	if (level > 1)
 		cout << " Score: " << score;
 	cout << "\nLevel " << level;
@@ -290,9 +281,9 @@ void Splash() {
 	glVertex3f((screenWidth / 2), -(screenHeight / 2 - 40), 0);
 	glVertex3f(-(screenWidth / 2), -(screenHeight / 2 - 40), 0);
 	glEnd();
-	score = 1000;
 	glFlush();
 	glPopMatrix();
+	score = 1000;
 	glutSwapBuffers();
 }
 
@@ -311,7 +302,8 @@ void Help() {
 	glEnd();
 
 	glColor3f(1.0, 1.0, 1.0);
-	DrawText("The rules are simple", -(screenLength / 4), (screenHeight / 3), 2);
+	DrawText("The rules are simple", 
+		-(screenLength / 4), (screenHeight / 3), 2);
 	glColor3f(0.0, 1.0, 1.0);
 	DrawText("Move mouse to rotate the playing field",
 		-(screenLength / 2.1), (screenHeight / 16), 2);
@@ -370,19 +362,19 @@ void MouseClick(int button, int state, int x, int y) {
 				exit(0);
 			}
 			else {
-				WriteCoord();
+				//WriteCoord();
 				drawSC = false;
-				glPointSize(1);
+				custGame = true;
 				glutSetWindowTitle("Pretty Pixel");
 				glutFullScreen();
 				glPointSize(1);
-				glutDisplayFunc(Splash);
+				Leveler();
+				glutDisplayFunc(Pretty);
 			}
 		}
 		break;
 	case GLUT_LEFT_BUTTON:
-		if (state == GLUT_DOWN && pass == true && !drawSC &&
-			!mainSC && !helpSC) {
+		if (state == GLUT_DOWN && pass == true && !drawSC) {
 			//Level up
 			pass = false;
 			Leveler();
@@ -403,26 +395,24 @@ void Keys(unsigned char key, int x, int y) {
 	{
 	case 'm':
 	case 'M':
-		mainSC = true;
-		helpSC = false;
 		drawSC = false;
 		glutDisplayFunc(Splash);
 		break;
 
 	case 'h':
 	case 'H':
-		mainSC = false;
-		helpSC = true;
 		drawSC = false;
 		glutDisplayFunc(Help);
 		break;
 
 	case 'g':
 	case 'G':
-		mainSC = false;
-		helpSC = false;
 		drawSC = false;
-		glutSetWindowTitle("Pretty Draw");
+		if(firstG) {
+			Leveler();
+			firstG = false;
+		}
+		glutSetWindowTitle("Pretty Pixel");
 		glutDisplayFunc(Pretty);
 		break;
 
@@ -433,9 +423,8 @@ void Keys(unsigned char key, int x, int y) {
 
 	case 'c':
 	case 'C':
-		mainSC = false;
-		helpSC = false;
 		drawSC = true;
+		ind = 0;
 		glutReshapeWindow(800, 800);
 		glutSetWindowTitle("Pretty Draw");
 		glutDisplayFunc(CustomDraw);
@@ -466,7 +455,6 @@ int main(int argc, char **argv) {
 	glEnable(GL_DEPTH_TEST);
 	/***********************/
 
-	Leveler();
 
 	/***********************/
 
