@@ -109,6 +109,11 @@ void Leveler() {
 			memcpy(picture, four, sizeof(int) * siz * 3);
 			score += 1000;
 			break;
+		case 5:
+			siz = sizeof(five) / sizeof(five[0]);
+			memcpy(picture, five, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
 		default:
 			cout << " Score: " << score << "\nGame Over\n";
 			siz = sizeof(one) / sizeof(one[0]);
