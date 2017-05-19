@@ -7,27 +7,29 @@
 #include <GL/freeglut.h>
 #include <time.h>
 
+//Level picture storage
 #include "Pictures.h"
 
 using namespace std;
 
+/**************************************************************************/
 //Global defaults
+
 int
-screenLength = 800, screenWidth, screenHeight, level = 0, siz = 0,
-solBuffer = 5, score = 1000, picture[300][3], custPicture[300][3],
-ind = 0;
+	screenLength = 800, screenWidth, screenHeight, level = 0, siz = 0,
+	solBuffer = 5, score = 1000, picture[300][3], custPicture[300][3],
+	ind = 0;
 float
-rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
+	rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
 bool
-pass = false, drawSC = false, custGame = false, firstG = true;
+	pass = false, drawSC = false, custGame = false, firstG = true;
 char
-scoreText[7], levelText[3];
+	scoreText[7], levelText[3];
 
+/**************************************************************************/
+//Background operations
 
-//Global declarations
-void Splash();
-void GameOver();
-
+//Randomize z-coordinates
 void RandomizeZ(int ray[][3], int siz) {
 	srand(time(NULL));
 	for (int i = 0; i < siz; ++i) {
@@ -35,6 +37,7 @@ void RandomizeZ(int ray[][3], int siz) {
 	}
 }
 
+//Draw and store picture for custom game
 void DrawCustomPixel(int x, int y) {
 	glPushMatrix();
 	cout << endl << ind;
@@ -53,6 +56,7 @@ void DrawCustomPixel(int x, int y) {
 	ind++;
 }
 
+//Custom Drawboard display
 void CustomDraw() {
 	glPushMatrix();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -65,74 +69,7 @@ void CustomDraw() {
 	glutSwapBuffers();
 }
 
-void Leveler() {
-	//Set random solution point
-	srand(time(NULL));
-	cx = (rand() % screenLength) - (screenLength / 2);
-	cy = (rand() % screenLength) - (screenLength / 2);
-	goalX = cy / (screenLength / 200);
-	goalY = cx / (screenLength / 200);
-
-	//Clear picture
-	memset(picture, 0, sizeof(int) * siz * 3);
-
-	//Level up
-	level++;
-
-	if (custGame) {
-		siz = ind;//sizeof(custPicture) / sizeof(custPicture[0]);
-		memcpy(picture, custPicture, sizeof(int) * siz * 3);
-		score = 1000;
-		level = 999;
-		custGame = false;
-	}
-
-	else {
-		//Load level picture
-		switch (level) {
-		case 1:
-			siz = sizeof(one) / sizeof(one[0]);
-			memcpy(picture, one, sizeof(int) * siz * 3);
-			break;
-		case 2:
-			siz = sizeof(two) / sizeof(two[0]);
-			memcpy(picture, two, sizeof(int) * siz * 3);
-			score += 1000;
-			break;
-		case 3:
-			siz = sizeof(three) / sizeof(three[0]);
-			memcpy(picture, three, sizeof(int) * siz * 3);
-			score += 1000;
-			break;
-		case 4:
-			siz = sizeof(four) / sizeof(four[0]);
-			memcpy(picture, four, sizeof(int) * siz * 3);
-			score += 1000;
-			break;
-		case 5:
-			siz = sizeof(five) / sizeof(five[0]);
-			memcpy(picture, five, sizeof(int) * siz * 3);
-			score += 1000;
-			break;
-		default:
-			cout << " Score: " << score << "\nGame Over\n";
-			siz = sizeof(one) / sizeof(one[0]);
-			memcpy(picture, one, sizeof(int) * siz * 3);
-			level = 1;
-			score = 1000;
-			glutDisplayFunc(GameOver);
-			break;
-		}
-	}
-
-	if (level > 1)
-		cout << " Score: " << score;
-	cout << "\nLevel " << level;
-
-	//Randomize z coordinates
-	RandomizeZ(picture, siz);
-}
-
+//Text render 
 void DrawText(const char *text, int x, int y, int sparkle) {
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -157,8 +94,8 @@ void DrawText(const char *text, int x, int y, int sparkle) {
 	glPopMatrix();
 }
 
+//Draw playground 
 void DrawPixel() {
-	//glColor3f((rand()%100/100.0),(rand()%100/100.0),(rand()%100/100.0));
 	glPushMatrix();
 	//Draw points
 	glColor3f(.33, .44, .98);
@@ -177,9 +114,15 @@ void DrawPixel() {
 	glPopMatrix();
 }
 
+/**************************************************************************/
+//Display functions
+
+//Main game display
 void Pretty() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPointSize(1);
+
+	//Round details
 	sprintf(levelText, "%d", level);
 	DrawText("Level: ",
 		-70, (screenHeight / 2.2), 2);
@@ -208,12 +151,12 @@ void Pretty() {
 
 	//Display Image
 	DrawPixel();
-	//glutWireCube(400);
 
 	glFlush();
 	glutSwapBuffers();
 }
 
+//Gameover display
 void GameOver() {
 	glPushMatrix();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -247,6 +190,7 @@ void GameOver() {
 	glutSwapBuffers();
 }
 
+//Splash screen display
 void Splash() {
 	glPushMatrix();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -292,6 +236,7 @@ void Splash() {
 	glutSwapBuffers();
 }
 
+//Help screen display
 void Help() {
 	glPushMatrix();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -323,6 +268,85 @@ void Help() {
 	glutSwapBuffers();
 }
 
+/**************************************************************************/
+
+//Level initialization
+void Leveler() {
+	//Set random solution point
+	srand(time(NULL));
+	cx = (rand() % screenLength) - (screenLength / 2);
+	cy = (rand() % screenLength) - (screenLength / 2);
+	goalX = cy / (screenLength / 200);
+	goalY = cx / (screenLength / 200);
+
+	//Clear picture
+	memset(picture, 0, sizeof(int) * siz * 3);
+
+	//Level up
+	level++;
+
+	//Play Custom Game
+	if (custGame) {
+		siz = ind;
+		memcpy(picture, custPicture, sizeof(int) * siz * 3);
+		score = 1000;
+		level = 999;
+		custGame = false;
+	}
+
+	//Play default game
+	else {
+		//Load level picture
+		switch (level) {
+		case 1:
+			siz = sizeof(one) / sizeof(one[0]);
+			memcpy(picture, one, sizeof(int) * siz * 3);
+			break;
+
+		case 2:
+			siz = sizeof(two) / sizeof(two[0]);
+			memcpy(picture, two, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+
+		case 3:
+			siz = sizeof(three) / sizeof(three[0]);
+			memcpy(picture, three, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+
+		case 4:
+			siz = sizeof(four) / sizeof(four[0]);
+			memcpy(picture, four, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+
+		case 5:
+			siz = sizeof(five) / sizeof(five[0]);
+			memcpy(picture, five, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+
+		default://Gameover
+			cout << " Score: " << score << "\nGame Over\n";
+			siz = sizeof(one) / sizeof(one[0]);
+			memcpy(picture, one, sizeof(int) * siz * 3);
+			level = 1;
+			score = 1000;
+			glutDisplayFunc(GameOver);
+			break;
+		}
+	}
+
+	if (level > 1)
+		cout << " Score: " << score;
+	cout << "\nLevel " << level;
+
+	//Randomize z coordinates
+	RandomizeZ(picture, siz);
+}
+
+//Window reshape callback
 void Reshape(int w, int h) {
 	screenWidth = w;
 	screenHeight = h;
@@ -334,33 +358,41 @@ void Reshape(int w, int h) {
 	glLoadIdentity();
 }
 
+/**************************************************************************/
+//Input callbacks
+
+//Passive motion callback
 void MouseMove(int x, int y) {
+	//Normalization
 	x = x - (screenLength / 2),
-		y = (screenLength - y) - (screenLength / 2);
+	y = (screenLength - y) - (screenLength / 2);
 	if (!drawSC) {
 		rotateX = -y / (screenLength / 200);
 		rotateY = x / (screenLength / 200);
 		if (--score < 0)
 		{
 			score = 1000;
-
 			glutDisplayFunc(GameOver);
 		}
 		glutPostRedisplay();
 	}
 }
 
+//Active motion callback
 void MouseClickMove(int x, int y) {
+	//Normalization
 	x = x - (screenLength / 2),
-		y = (screenLength - y) - (screenLength / 2);
+	y = (screenLength - y) - (screenLength / 2);
 }
 
+//Mouse click call back
 void MouseClick(int button, int state, int x, int y) {
+	//Normalization
 	x = x - (screenLength / 2),
-		y = (screenLength - y) - (screenLength / 2);
+	y = (screenLength - y) - (screenLength / 2);
 
 	switch (button) {
-	case GLUT_RIGHT_BUTTON:
+	case GLUT_RIGHT_BUTTON://Right mouse button
 		if (state == GLUT_DOWN) {
 			if (!drawSC) {
 				cout << "\nGame Over\n";
@@ -378,7 +410,7 @@ void MouseClick(int button, int state, int x, int y) {
 			}
 		}
 		break;
-	case GLUT_LEFT_BUTTON:
+	case GLUT_LEFT_BUTTON://left mouse button
 		if (state == GLUT_DOWN && pass == true && !drawSC) {
 			//Level up
 			pass = false;
@@ -394,24 +426,28 @@ void MouseClick(int button, int state, int x, int y) {
 	}
 }
 
+//Keyboard callback
 void Keys(unsigned char key, int x, int y) {
 
 	switch (key)
 	{
 	case 'm':
 	case 'M':
+		//Splash screen
 		drawSC = false;
 		glutDisplayFunc(Splash);
 		break;
 
 	case 'h':
 	case 'H':
+		//Help screen
 		drawSC = false;
 		glutDisplayFunc(Help);
 		break;
 
 	case 'g':
 	case 'G':
+		//Game screen
 		drawSC = false;
 		if (firstG) {
 			Leveler();
@@ -423,11 +459,13 @@ void Keys(unsigned char key, int x, int y) {
 
 	case 'f':
 	case 'F':
+		//Full screen toggle
 		glutFullScreenToggle();
 		break;
 
 	case 'c':
 	case 'C':
+		//Custom game screen
 		drawSC = true;
 		ind = 0;
 		glutReshapeWindow(800, 800);
@@ -437,16 +475,15 @@ void Keys(unsigned char key, int x, int y) {
 
 	case 'q':
 	case 'Q':
+		//Quit game
 		exit(0);
+		break;
 	}
 }
 
-void idle() {
-	//Idle boy
-	glutSwapBuffers();
-	//glutPostRedisplay();	
-}
+/**************************************************************************/
 
+//Main
 int main(int argc, char **argv) {
 	cout << "Hello World!  Pretty Pixel\n";
 
@@ -455,12 +492,10 @@ int main(int argc, char **argv) {
 	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - screenLength) / 2,
 		(glutGet(GLUT_SCREEN_HEIGHT) - screenLength) / 2);
 	glutInitWindowSize(screenLength, screenLength);
+	
 	glutCreateWindow("Pretty Pixel");
 	glutFullScreen();
 	glEnable(GL_DEPTH_TEST);
-	/***********************/
-
-	/***********************/
 
 	glutReshapeFunc(Reshape);
 	glutMouseFunc(MouseClick);
@@ -468,10 +503,8 @@ int main(int argc, char **argv) {
 	glutPassiveMotionFunc(MouseMove);
 	glutKeyboardFunc(Keys);
 	glutDisplayFunc(Splash);
-	//glutIdleFunc(idle);
+
 	glutMainLoop();
 
 	return 0;
 }
-//Contact GitHub API Training Shop Blog About
-//© 2017 GitHub, Inc.Terms Privacy Security Status Help
