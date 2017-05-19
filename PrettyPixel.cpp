@@ -14,7 +14,7 @@ using namespace std;
 //Global defaults
 int
 screenLength = 800, screenWidth, screenHeight, level = 0, siz = 0,
-solBuffer = 5, score = 0, picture[300][3], custPicture[300][3],
+solBuffer = 5, score = 1000, picture[300][3], custPicture[300][3],
 ind = 0;
 float
 rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
@@ -48,8 +48,8 @@ void DrawCustomPixel(int x, int y) {
 
 	//Store points
 	custPicture[ind][0] = x,
-	custPicture[ind][1] = y,
-	custPicture[ind][2] = 0;
+		custPicture[ind][1] = y,
+		custPicture[ind][2] = 0;
 	ind++;
 }
 
@@ -79,7 +79,7 @@ void Leveler() {
 	//Level up
 	level++;
 
-	if(custGame) {
+	if (custGame) {
 		siz = ind;//sizeof(custPicture) / sizeof(custPicture[0]);
 		memcpy(picture, custPicture, sizeof(int) * siz * 3);
 		score = 1000;
@@ -124,7 +124,7 @@ void Leveler() {
 			break;
 		}
 	}
-	
+
 	if (level > 1)
 		cout << " Score: " << score;
 	cout << "\nLevel " << level;
@@ -307,7 +307,7 @@ void Help() {
 	glEnd();
 
 	glColor3f(1.0, 1.0, 1.0);
-	DrawText("The rules are simple", 
+	DrawText("The rules are simple",
 		-(screenLength / 4), (screenHeight / 3), 2);
 	glColor3f(0.0, 1.0, 1.0);
 	DrawText("Move mouse to rotate the playing field",
@@ -340,14 +340,14 @@ void MouseMove(int x, int y) {
 	if (!drawSC) {
 		rotateX = -y / (screenLength / 200);
 		rotateY = x / (screenLength / 200);
-			if (--score < 0)
-			{
-				score = 1000;
-				
-				glutDisplayFunc(GameOver);
-			}
-			glutPostRedisplay();
+		if (--score < 0)
+		{
+			score = 1000;
+
+			glutDisplayFunc(GameOver);
 		}
+		glutPostRedisplay();
+	}
 }
 
 void MouseClickMove(int x, int y) {
@@ -413,7 +413,7 @@ void Keys(unsigned char key, int x, int y) {
 	case 'g':
 	case 'G':
 		drawSC = false;
-		if(firstG) {
+		if (firstG) {
 			Leveler();
 			firstG = false;
 		}
@@ -459,7 +459,6 @@ int main(int argc, char **argv) {
 	glutFullScreen();
 	glEnable(GL_DEPTH_TEST);
 	/***********************/
-
 
 	/***********************/
 
