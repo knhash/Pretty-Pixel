@@ -99,7 +99,7 @@ void DrawPixel() {
 	glPushMatrix();
 	//Draw points
 	glColor3f(.33, .44, .98);
-	glPointSize(7);
+	glPointSize(3);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_INT, 0, picture);
 	glDrawArrays(GL_POINTS, 0, siz);
@@ -324,6 +324,18 @@ void Leveler() {
 		case 5:
 			siz = sizeof(five) / sizeof(five[0]);
 			memcpy(picture, five, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+
+		case 6:
+			siz = sizeof(six) / sizeof(six[0]);
+			memcpy(picture, six, sizeof(int) * siz * 3);
+			score += 1000;
+			break;
+
+		case 7:
+			siz = sizeof(seven) / sizeof(seven[0]);
+			memcpy(picture, seven, sizeof(int) * siz * 3);
 			score += 1000;
 			break;
 
