@@ -16,15 +16,15 @@ using namespace std;
 //Global defaults
 
 int
-	screenLength = 800, screenWidth, screenHeight, level = 0, siz = 0,
-	solBuffer = 5, score = 1000, picture[300][3], custPicture[300][3],
-	ind = 0;
+screenLength = 800, screenWidth, screenHeight, level = 0, siz = 0,
+solBuffer = 5, score = 1000, picture[300][3], custPicture[300][3],
+ind = 0;
 float
-	rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
+rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
 bool
-	pass = false, drawSC = false, custGame = false, firstG = true;
+pass = false, drawSC = false, custGame = false, firstG = true, epilepsyFlag = false;
 char
-	scoreText[7], levelText[3];
+scoreText[7], levelText[3];
 
 /**************************************************************************/
 //Background operations
@@ -98,8 +98,10 @@ void DrawText(const char *text, int x, int y, int sparkle) {
 void DrawPixel() {
 	glPushMatrix();
 	//Draw points
+
 	glColor3f(.33, .44, .98);
-	glPointSize(3);
+	epilepsyFlag ? glColor3f((rand()%100)/100.0, (rand() % 100) / 100.0, (rand() % 100) / 100.0) : glColor3f(.33, .44, .98);
+	glPointSize(5);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_INT, 0, picture);
 	glDrawArrays(GL_POINTS, 0, siz);
@@ -377,7 +379,7 @@ void Reshape(int w, int h) {
 void MouseMove(int x, int y) {
 	//Normalization
 	x = x - (screenLength / 2),
-	y = (screenLength - y) - (screenLength / 2);
+		y = (screenLength - y) - (screenLength / 2);
 	if (!drawSC) {
 		rotateX = -y / (screenLength / 200);
 		rotateY = x / (screenLength / 200);
@@ -394,14 +396,14 @@ void MouseMove(int x, int y) {
 void MouseClickMove(int x, int y) {
 	//Normalization
 	x = x - (screenLength / 2),
-	y = (screenLength - y) - (screenLength / 2);
+		y = (screenLength - y) - (screenLength / 2);
 }
 
 //Mouse click call back
 void MouseClick(int button, int state, int x, int y) {
 	//Normalization
 	x = x - (screenLength / 2),
-	y = (screenLength - y) - (screenLength / 2);
+		y = (screenLength - y) - (screenLength / 2);
 
 	switch (button) {
 	case GLUT_RIGHT_BUTTON://Right mouse button
@@ -485,6 +487,12 @@ void Keys(unsigned char key, int x, int y) {
 		glutDisplayFunc(CustomDraw);
 		break;
 
+	case 'e':
+	case 'E':
+		//Want some epilepsy?
+		epilepsyFlag ? epilepsyFlag = false : epilepsyFlag = true;
+		break;
+
 	case 'q':
 	case 'Q':
 		//Quit game
@@ -504,7 +512,7 @@ int main(int argc, char **argv) {
 	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - screenLength) / 2,
 		(glutGet(GLUT_SCREEN_HEIGHT) - screenLength) / 2);
 	glutInitWindowSize(screenLength, screenLength);
-	
+
 	glutCreateWindow("Pretty Pixel");
 	glutFullScreen();
 	glEnable(GL_DEPTH_TEST);
