@@ -22,7 +22,7 @@ ind = 0;
 float
 rotateX = 0, rotateY = 0, goalX = 0, goalY = 0, cx, cy;
 bool
-pass = false, drawSC = false, custGame = false, firstG = true, epilepsyFlag = false;
+pass = false, drawSC = false, custGame = false, firstG = true, epilepsyFlag = false, hard = false;
 char
 scoreText[7], levelText[3];
 
@@ -98,22 +98,23 @@ void DrawText(const char *text, int x, int y, int sparkle) {
 void DrawPixel() {
 	glPushMatrix();
 	//Draw points
-
-	glColor3f(.33, .44, .98);
-	epilepsyFlag ? glColor3f((rand()%100)/100.0, (rand() % 100) / 100.0, (rand() % 100) / 100.0) : glColor3f(.33, .44, .98);
+	epilepsyFlag ? glColor3f((rand() % 100) / 100.0, (rand() % 100) / 100.0, (rand() % 100) / 100.0) : glColor4f(0.96, 0.26, 0.21, 1.0);
 	glPointSize(5);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_INT, 0, picture);
 	glDrawArrays(GL_POINTS, 0, siz);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	//Draw lines
-	glColor3f(1, 1, 1);
-	glLineWidth(1);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_INT, 0, picture);
-	glDrawArrays(GL_LINES, 0, siz);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glPopMatrix();
+	if (hard)
+	{
+		glColor3f(1, 1, 1);
+		glLineWidth(1);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_INT, 0, picture);
+		glDrawArrays(GL_LINES, 0, siz);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glPopMatrix();
+	}
 }
 
 /**************************************************************************/
@@ -123,7 +124,7 @@ void DrawPixel() {
 void Pretty() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPointSize(1);
-
+	glColor3f(1, 1, 1);
 	//Round details
 	sprintf(levelText, "%d", level);
 	DrawText("Level: ",
@@ -201,7 +202,6 @@ void Splash() {
 	glColor3f(1.0, 0.54, 0.5);
 	DrawText("PRETTY PIXEL",
 		-(screenLength / 2.7), (screenHeight / 4), 1);
-
 	glColor3f(0.3, 0.69, 0.31);
 	DrawText("(g/G): START GAME",
 		-(screenLength / 5), (screenHeight / 16), 2);
@@ -245,6 +245,7 @@ void Help() {
 	glLoadIdentity();
 
 	glLineWidth(10);
+	glPointSize(1);
 	glColor3f(1.0, 0.44, 0.26);
 	glBegin(GL_LINES);
 	glVertex3f(-(screenWidth / 2), (screenHeight / 2 - 40), 0);
@@ -265,6 +266,8 @@ void Help() {
 		-(screenLength / 2.1), -(screenHeight / 16), 2);
 	DrawText("(m/M) to go to menu, (g/G) to start game",
 		-(screenLength / 2.1), -(screenHeight / 8), 2);
+	DrawText("(t/T) to increase difficulty",
+		-(screenLength / 2.1), -(screenHeight / 5.2), 2);
 	glFlush();
 	glPopMatrix();
 	glutSwapBuffers();
@@ -410,7 +413,7 @@ void MouseClick(int button, int state, int x, int y) {
 		if (state == GLUT_DOWN) {
 			if (!drawSC) {
 				cout << "\nGame Over\n";
-				exit(0);
+				//exit(0);
 			}
 			else {
 				//WriteCoord();
@@ -493,6 +496,11 @@ void Keys(unsigned char key, int x, int y) {
 		epilepsyFlag ? epilepsyFlag = false : epilepsyFlag = true;
 		break;
 
+	case 't':
+	case 'T':
+		hard ? hard = false : hard = true;
+		break;
+
 	case 'q':
 	case 'Q':
 		//Quit game
@@ -523,7 +531,7 @@ int main(int argc, char **argv) {
 	glutPassiveMotionFunc(MouseMove);
 	glutKeyboardFunc(Keys);
 	glutDisplayFunc(Splash);
-
+	glClearColor(0.13, 0.13, 0.13, 1.0);
 	glutMainLoop();
 
 	return 0;
