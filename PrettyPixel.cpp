@@ -531,7 +531,7 @@ int main(int argc, char **argv) {
 	glutPassiveMotionFunc(MouseMove);
 	glutKeyboardFunc(Keys);
 	glutDisplayFunc(Splash);
-	glClearColor(0.13, 0.13, 0.13, 1.0);
+	glClearColor(0.08f, 0.08f, 0.08f, 1.0);
 	glutMainLoop();
 
 	return 0;
