@@ -115,6 +115,7 @@ void DrawPixel() {
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glPopMatrix();
 	}
+	glPopMatrix();
 }
 
 /**************************************************************************/
@@ -234,7 +235,7 @@ void Splash() {
 	glEnd();
 	glFlush();
 	glPopMatrix();
-	score = 1000;
+	score = 2000;
 	glutSwapBuffers();
 }
 
@@ -466,10 +467,10 @@ void Keys(unsigned char key, int x, int y) {
 	case 'G':
 		//Game screen
 		drawSC = false;
-		if (firstG) {
-			Leveler();
-			firstG = false;
-		}
+	//Level Bug fixed here
+		level = 0;
+		Leveler();
+	
 		glutSetWindowTitle("Pretty Pixel");
 		glutDisplayFunc(Pretty);
 		break;
